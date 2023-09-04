@@ -19,6 +19,9 @@ Currently untested on windows so feedback would be appriciated
 ## Installation
 Since Boxchar is a header-only library, installation is as simple as copying `boxchar.h` into your project's include path. You can do this by adding it to your project manually or including it as a submodule in your git project.
 
+## Example
+To compile the example run `gcc boxchar.h example.c -o example` in the terminal, and then run `./example` to launch the example
+
 ## Licence
 ```
 MIT License
