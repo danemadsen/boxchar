@@ -53,6 +53,16 @@ static HANDLE hConsole;
 static struct termios old_tio;
 #endif
 
+// Color Defines
+#define BC_BLACK 0
+#define BC_RED 1
+#define BC_GREEN 2
+#define BC_YELLOW 3
+#define BC_BLUE 4
+#define BC_MAGENTA 5
+#define BC_CYAN 6
+#define BC_WHITE 7
+
 static void bcinit() {
     // Set the locale to the user's default
     setlocale(LC_ALL, "");
@@ -157,7 +167,5 @@ static void bcprintf(int x, int y, const wchar_t* str, int color) {
         printf("\033[%d;%dH\033[38;5;%dm%ls\033[0m", y, x, color, str);
     #endif
 }
-
-
 
 #endif // BOXCHAR_H
