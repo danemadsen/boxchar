@@ -63,7 +63,7 @@ static struct termios old_tio;
 #define BC_CYAN 6
 #define BC_WHITE 7
 
-static void bcinit() {
+static void bc_init() {
     // Set the locale to the user's default
     setlocale(LC_ALL, "");
     
@@ -94,7 +94,7 @@ static void bcinit() {
     #endif
 }
 
-static void bcend() {
+static void bc_end() {
     // Cleanup the terminal after boxchar
     #ifdef _WIN32
         // Restore original console mode
@@ -108,7 +108,7 @@ static void bcend() {
     #endif
 }
 
-static void bctermsize(int* width, int* height) {
+static void bc_termsize(int* width, int* height) {
     #ifdef _WIN32
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -122,7 +122,7 @@ static void bctermsize(int* width, int* height) {
     #endif
 }
 
-static void bcclear() {
+static void bc_clear() {
     #ifdef _WIN32
         COORD coord = {0, 0};
         DWORD written;
@@ -146,25 +146,39 @@ static void bcclear() {
     #endif
 }
 
-static void bcputchar(int x, int y, wchar_t ch, int color) {
+static void bc_putchar(int x, int y, wchar_t ch) {
     #ifdef _WIN32
         COORD coord = {x, y};
         SetConsoleCursorPosition(hConsole, coord);
-        SetConsoleTextAttribute(hConsole, color);
         wprintf(L"%lc", ch);
     #else
-        printf("\033[%d;%dH\033[38;5;%dm%lc\033[0m", y, x, color, ch);
+        printf("\033[%d;%dH%lc", y, x, ch);
     #endif
 }
 
-static void bcprintf(int x, int y, const wchar_t* str, int color) {
+static void bc_printf(int x, int y, const wchar_t* str) {
     #ifdef _WIN32
         COORD coord = {x, y};
         SetConsoleCursorPosition(hConsole, coord);
-        SetConsoleTextAttribute(hConsole, color);
         wprintf(L"%ls", str);
     #else
-        printf("\033[%d;%dH\033[38;5;%dm%ls\033[0m", y, x, color, str);
+        printf("\033[%d;%dH%ls", y, x, str);
+    #endif
+}
+
+static void bc_startcolor(int foreground, int background) {
+    #ifdef _WIN32
+        SetConsoleTextAttribute(hConsole, foreground + (background * 16));
+    #else
+        printf("\033[38;5;%d;48;5;%dm", foreground, background);
+    #endif
+}
+
+static void bc_endcolor() {
+    #ifdef _WIN32
+        SetConsoleTextAttribute(hConsole, 7);
+    #else
+        printf("\033[0m");
     #endif
 }
 
