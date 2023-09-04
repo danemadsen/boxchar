@@ -146,6 +146,34 @@ static void bc_clear() {
     #endif
 }
 
+static int bc_getchar() {
+    #ifdef _WIN32
+        DWORD mode, cc;
+        HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
+
+        if (h == NULL) {
+            return EOF; /* console not found */
+        }
+
+        GetConsoleMode(h, &mode);
+        SetConsoleMode(h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
+        TCHAR c = 0;
+        ReadConsole(h, &c, 1, &cc, NULL);
+        SetConsoleMode(h, mode);
+        return c;
+    #else
+        struct termios oldt, newt;
+        int ch;
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        return ch;
+    #endif
+}
+
 static void bc_putchar(int x, int y, wchar_t ch) {
     #ifdef _WIN32
         COORD coord = {x, y};
