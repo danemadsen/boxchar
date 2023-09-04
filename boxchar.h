@@ -112,6 +112,30 @@ static void bctermsize(int* width, int* height) {
     #endif
 }
 
+static void bcclear() {
+    #ifdef _WIN32
+        COORD coord = {0, 0};
+        DWORD written;
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+        // Get the number of cells in the current buffer 
+        if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+            DWORD cellCount = csbi.dwSize.X *csbi.dwSize.Y;
+
+            // Fill the entire buffer with spaces 
+            FillConsoleOutputCharacter(hConsole, (TCHAR)' ', cellCount, coord, &written);
+
+            // Fill the entire buffer with the current colors and attributes
+            FillConsoleOutputAttribute(hConsole, csbi.wAttributes, cellCount, coord, &written);
+
+            // Move the cursor position to the top left
+            SetConsoleCursorPosition(hConsole, coord);
+        }
+    #else
+        printf("\033[H\033[J");
+    #endif
+}
+
 static void bcputchar(int x, int y, wchar_t ch, int color) {
     #ifdef _WIN32
         COORD coord = {x, y};
@@ -122,6 +146,18 @@ static void bcputchar(int x, int y, wchar_t ch, int color) {
         printf("\033[%d;%dH\033[38;5;%dm%lc\033[0m", y, x, color, ch);
     #endif
 }
+
+static void bcprintf(int x, int y, const wchar_t* str, int color) {
+    #ifdef _WIN32
+        COORD coord = {x, y};
+        SetConsoleCursorPosition(hConsole, coord);
+        SetConsoleTextAttribute(hConsole, color);
+        wprintf(L"%ls", str);
+    #else
+        printf("\033[%d;%dH\033[38;5;%dm%ls\033[0m", y, x, color, str);
+    #endif
+}
+
 
 
 #endif // BOXCHAR_H
