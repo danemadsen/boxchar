@@ -36,8 +36,11 @@
 #define BOXCHAR_H
 
 #include <stdio.h>
-#include <wchar.h>
 #include <locale.h>
+
+#ifdef BOXCHAR_WIDE
+#include <wchar.h>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -112,6 +115,7 @@ void bctermsize(int* width, int* height) {
     #endif
 }
 
+#ifdef BOXCHAR_WIDE
 static void bcputchar(int x, int y, wchar_t ch, int color) {
     #ifdef _WIN32
         COORD coord = {x, y};
@@ -122,5 +126,17 @@ static void bcputchar(int x, int y, wchar_t ch, int color) {
         printf("\033[%d;%dH\033[38;5;%dm%lc\033[0m", y, x, color, ch);
     #endif
 }
+#else
+static void bcputchar(int x, int y, char ch, int color) {
+    #ifdef _WIN32
+        COORD coord = {x, y};
+        SetConsoleCursorPosition(hConsole, coord);
+        SetConsoleTextAttribute(hConsole, color);
+        printf("%c", ch);
+    #else
+        printf("\033[%d;%dH\033[38;5;%dm%c\033[0m", y, x, color, ch);
+    #endif
+}
+#endif
 
 #endif // BOXCHAR_H
