@@ -65,12 +65,9 @@ enum bc_color {
 };
 
 typedef struct {
-    int startx;
-    int starty;
-    int endx;
-    int endy;
-    wchar_t border;
-} bc_box;
+    int x;
+    int y;
+} bc_point;
 
 static void bc_init() {
     // Set the locale to the user's default
@@ -183,23 +180,23 @@ static int bc_getchar() {
     #endif
 }
 
-static void bc_putchar(int x, int y, wchar_t ch) {
+static void bc_putchar(bc_point point, wchar_t ch) {
     #ifdef _WIN32
-        COORD coord = {x, y};
+        COORD coord = {point.x, point.y};
         SetConsoleCursorPosition(hConsole, coord);
         wprintf(L"%lc", ch);
     #else
-        printf("\033[%d;%dH%lc", y, x, ch);
+        printf("\033[%d;%dH%lc", point.y, point.x, ch);
     #endif
 }
 
-static void bc_printf(int x, int y, const wchar_t* str) {
+static void bc_printf(bc_point point, const wchar_t* str) {
     #ifdef _WIN32
         COORD coord = {x, y};
         SetConsoleCursorPosition(hConsole, coord);
         wprintf(L"%ls", str);
     #else
-        printf("\033[%d;%dH%ls", y, x, str);
+        printf("\033[%d;%dH%ls", point.y, point.x, str);
     #endif
 }
 
@@ -219,15 +216,15 @@ static void bc_endcolor() {
     #endif
 }
 
-static void bc_drawbox(bc_box* box) {
-    for(int i = 0; i < box->endx; i++) {
-        bc_putchar(box->startx + i, box->starty, box->border);
-        bc_putchar(box->startx + i, box->starty + box->endy - 1, box->border);
+static void bc_drawbox(bc_point start, bc_point end, wchar_t border) {
+    for(int i = 0; i < end.x; i++) {
+        bc_putchar((bc_point) {start.x + i, start.y}, border);
+        bc_putchar((bc_point) {start.x + i, start.y + end.y - 1}, border);
     }
 
-    for(int i = 0; i < box->endy; i++) {
-        bc_putchar(box->startx, box->starty + i, box->border);
-        bc_putchar(box->startx + box->endx - 1, box->starty + i, box->border);
+    for(int i = 0; i < end.y; i++) {
+        bc_putchar((bc_point) {start.x, start.y + i}, border);
+        bc_putchar((bc_point) {start.x + end.x - 1, start.y + i}, border);
     }
 }
 

@@ -28,7 +28,7 @@ int main() {
         }
 
         bc_startcolor(BC_RED, BC_GREEN);
-        bc_putchar(x, y, L'☻');
+        bc_putchar((bc_point) {x, y}, L'☻');
         bc_endcolor();
 
         int ch = bc_getchar();
