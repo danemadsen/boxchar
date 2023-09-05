@@ -27,7 +27,7 @@ int main() {
             height = new_height;
         }
 
-        bc_startcolor(BC_RED, BC_GREEN);
+        bc_startcolor((bc_colorpair) {BC_RED, BC_GREEN});
         bc_putchar((bc_point) {x, y}, L'☻');
         bc_endcolor();
 

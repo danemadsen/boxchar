@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <wchar.h>
+#include <stdint.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -69,6 +70,17 @@ typedef struct {
     int x;
     int y;
 } bc_point;
+
+typedef struct {
+    uint8_t foreground;
+    uint8_t background;
+} bc_colorpair;
+
+typedef struct {
+    bc_point position;
+    wchar_t label[30];
+    bc_colorpair colors;
+} bc_button;
 
 static void bc_init() {
     // Set the locale to the user's default
@@ -201,11 +213,11 @@ static void bc_printf(bc_point point, const wchar_t* str) {
     #endif
 }
 
-static void bc_startcolor(int foreground, int background) {
+static void bc_startcolor(bc_colorpair colorpair) {
     #ifdef _WIN32
-        SetConsoleTextAttribute(hConsole, foreground + (background * 16));
+        SetConsoleTextAttribute(hConsole, colorpair.foreground + (colorpair.foreground * 16));
     #else
-        printf("\033[38;5;%d;48;5;%dm", foreground, background);
+        printf("\033[38;5;%d;48;5;%dm", colorpair.foreground, colorpair.background);
     #endif
 }
 
@@ -244,5 +256,7 @@ static void bc_drawline(bc_point start, bc_point end, wchar_t character) {
         y += yinc;
     }
 }
+
+
 
 #endif // BOXCHAR_H
