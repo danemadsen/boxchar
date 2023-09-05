@@ -36,6 +36,7 @@
 #define BOXCHAR_H
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <locale.h>
 #include <wchar.h>
 
@@ -225,6 +226,22 @@ static void bc_drawbox(bc_point start, bc_point end, wchar_t border) {
     for(int i = 0; i < end.y; i++) {
         bc_putchar((bc_point) {start.x, start.y + i}, border);
         bc_putchar((bc_point) {start.x + end.x - 1, start.y + i}, border);
+    }
+}
+
+static void bc_drawline(bc_point start, bc_point end, wchar_t character) {
+    int dx = end.x - start.x;
+    int dy = end.y - start.y;
+    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+    float xinc = dx / (float)steps;
+    float yinc = dy / (float)steps;
+    float x = start.x;
+    float y = start.y;
+
+    for (int i = 0; i <= steps; i++) {
+        bc_putchar((bc_point) {x, y}, character);
+        x += xinc;
+        y += yinc;
     }
 }
 
