@@ -66,6 +66,8 @@ enum bc_color {
     BC_WHITE = 7
 };
 
+typedef void (*bc_callback)(void);
+
 typedef struct {
     int x;
     int y;
@@ -80,6 +82,7 @@ typedef struct {
     bc_point position;
     wchar_t label[30];
     bc_colorpair colors;
+    bc_callback callback;
 } bc_button;
 
 static void bc_init() {
@@ -124,6 +127,52 @@ static void bc_end() {
         
         // Show cursor
         printf("\033[?25h\033[H\033[J");
+    #endif
+}
+
+static bc_point bc_getcursor() {
+    bc_point pos = {0, 0};
+    
+    #ifdef _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+            pos.x = csbi.dwCursorPosition.X;
+            pos.y = csbi.dwCursorPosition.Y;
+        }
+    #else
+        int ret;
+        char buf[32];
+        unsigned i = 0;
+
+        // Write the escape sequence to get the cursor position
+        write(STDOUT_FILENO, "\x1b[6n", 4);
+
+        // Read the response: ESC [ rows ; cols R
+        while (i < sizeof(buf) - 1) {
+            ret = read(STDIN_FILENO, buf + i, 1);
+            if (ret == -1 || (i > 0 && buf[i] == 'R')) break;
+            i += ret;
+        }
+        buf[i] = '\0';
+
+        // Parse the response
+        if (sscanf(buf, "\x1b[%d;%dR", &pos.y, &pos.x) != 2) {
+            // Parsing failed, return (0, 0)
+            pos.x = 0;
+            pos.y = 0;
+        }
+    #endif
+    
+    return pos;
+}
+
+static void bc_setcursor(bc_point point) {
+    #ifdef _WIN32
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        COORD coord = {point.x, point.y};
+        SetConsoleCursorPosition(hConsole, coord);
+    #else
+        printf("\033[%d;%dH", point.y, point.x);
     #endif
 }
 
@@ -257,6 +306,40 @@ static void bc_drawline(bc_point start, bc_point end, wchar_t character) {
     }
 }
 
+static void bc_createbutton(bc_button button) {
+    bc_startcolor(button.colors);
 
+    // Calculate the total width of the button
+    int button_width = wcslen(button.label);
+
+    // Create the button label
+    wchar_t button_label[30];
+    swprintf(button_label, 30, L"%ls", button.label);
+
+    // Calculate position for the button label
+    bc_point label_position = {
+        .x = button.position.x,
+        .y = button.position.y
+    };
+
+    // Print the button label
+    bc_printf(label_position, button_label);
+
+    bc_endcolor();
+}
+
+static int bc_ispressed(bc_button button, wchar_t key) {
+    int ch = bc_getchar();
+
+    if (ch == key) {
+        bc_point cursor_position = bc_getcursor();
+        int button_width = wcslen(button.label) + 2;
+        return cursor_position.x >= button.position.x &&
+               cursor_position.x <= button.position.x + button_width &&
+               cursor_position.y == button.position.y;
+    }
+
+    return 0;
+}
 
 #endif // BOXCHAR_H
