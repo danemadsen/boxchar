@@ -53,15 +53,24 @@ static HANDLE hConsole;
 static struct termios old_tio;
 #endif
 
-// Color Defines
-#define BC_BLACK 0
-#define BC_RED 1
-#define BC_GREEN 2
-#define BC_YELLOW 3
-#define BC_BLUE 4
-#define BC_MAGENTA 5
-#define BC_CYAN 6
-#define BC_WHITE 7
+enum bc_color {
+    BC_BLACK = 0,
+    BC_RED = 1,
+    BC_GREEN = 2,
+    BC_YELLOW = 3,
+    BC_BLUE = 4,
+    BC_MAGENTA = 5,
+    BC_CYAN = 6,
+    BC_WHITE = 7
+};
+
+typedef struct {
+    int startx;
+    int starty;
+    int endx;
+    int endy;
+    wchar_t border;
+} bc_box;
 
 static void bc_init() {
     // Set the locale to the user's default
@@ -208,6 +217,31 @@ static void bc_endcolor() {
     #else
         printf("\033[0m");
     #endif
+}
+
+static bc_box bc_startbox(wchar_t border, int x, int y) {
+    bc_box box;
+    box.startx = x;
+    box.starty = y;
+    box.endx = 0;
+    box.endy = 0;
+    box.border = border;
+    return box;
+}
+
+static void bc_endbox(bc_box* box, int x, int y) {
+    box->endx = x;
+    box->endy = y;
+
+    for(int i = 0; i < box->endx; i++) {
+        bc_putchar(box->startx + i, box->starty, box->border);
+        bc_putchar(box->startx + i, box->starty + box->endy - 1, box->border);
+    }
+
+    for(int i = 0; i < box->endy; i++) {
+        bc_putchar(box->startx, box->starty + i, box->border);
+        bc_putchar(box->startx + box->endx - 1, box->starty + i, box->border);
+    }
 }
 
 #endif // BOXCHAR_H
