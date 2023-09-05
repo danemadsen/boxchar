@@ -219,20 +219,7 @@ static void bc_endcolor() {
     #endif
 }
 
-static bc_box bc_startbox(wchar_t border, int x, int y) {
-    bc_box box;
-    box.startx = x;
-    box.starty = y;
-    box.endx = 0;
-    box.endy = 0;
-    box.border = border;
-    return box;
-}
-
-static void bc_endbox(bc_box* box, int x, int y) {
-    box->endx = x;
-    box->endy = y;
-
+static void bc_drawbox(bc_box* box) {
     for(int i = 0; i < box->endx; i++) {
         bc_putchar(box->startx + i, box->starty, box->border);
         bc_putchar(box->startx + i, box->starty + box->endy - 1, box->border);
