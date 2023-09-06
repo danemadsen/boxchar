@@ -45,6 +45,7 @@
 #include <windows.h>
 #else
 #include <termios.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #endif
@@ -232,12 +233,21 @@ static int bc_getchar() {
     #else
         struct termios oldt, newt;
         int ch;
+        int flags;
+
         tcgetattr(STDIN_FILENO, &oldt);
         newt = oldt;
         newt.c_lflag &= ~(ICANON | ECHO);
         tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        
+        flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+        fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
         ch = getchar();
+        
+        fcntl(STDIN_FILENO, F_SETFL, flags);
         tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        
         return ch;
     #endif
 }

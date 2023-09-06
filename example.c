@@ -45,6 +45,12 @@ int main() {
         } else if (ch == 'q') {
             break;  // Exit the loop if 'q' is pressed
         }
+
+        #ifdef _WIN32
+            Sleep(10); // Sleep for 10 milliseconds on Windows
+        #else
+            usleep(10000); // Sleep for 10 milliseconds (50000 microseconds) on UNIX-like systems
+        #endif
     }
 
     bc_end();
