@@ -264,7 +264,7 @@ static void bc_putchar(bc_point point, wchar_t ch) {
 
 static void bc_printf(bc_point point, const wchar_t* str) {
     #ifdef _WIN32
-        COORD coord = {x, y};
+        COORD coord = {point.y, point.x};
         SetConsoleCursorPosition(hConsole, coord);
         wprintf(L"%ls", str);
     #else
