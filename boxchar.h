@@ -319,9 +319,6 @@ void bc_drawline(bc_point start, bc_point end, wchar_t character) {
 void bc_createbutton(bc_button button) {
     bc_startcolor(button.colors);
 
-    // Calculate the total width of the button
-    int button_width = wcslen(button.label);
-
     // Create the button label
     wchar_t button_label[30];
     swprintf(button_label, 30, L"%ls", button.label);
