@@ -131,7 +131,7 @@ static void bc_end() {
     #endif
 }
 
-static bc_point bc_getcursor() {
+bc_point bc_getcursor() {
     bc_point pos = {0, 0};
     
     #ifdef _WIN32
@@ -167,7 +167,7 @@ static bc_point bc_getcursor() {
     return pos;
 }
 
-static void bc_setcursor(bc_point point) {
+void bc_setcursor(bc_point point) {
     #ifdef _WIN32
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         COORD coord = {point.x, point.y};
@@ -177,7 +177,7 @@ static void bc_setcursor(bc_point point) {
     #endif
 }
 
-static void bc_termsize(int* width, int* height) {
+void bc_termsize(int* width, int* height) {
     #ifdef _WIN32
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
@@ -191,7 +191,7 @@ static void bc_termsize(int* width, int* height) {
     #endif
 }
 
-static void bc_clear() {
+void bc_clear() {
     #ifdef _WIN32
         COORD coord = {0, 0};
         DWORD written;
@@ -215,7 +215,7 @@ static void bc_clear() {
     #endif
 }
 
-static int bc_getchar() {
+int bc_getchar() {
     #ifdef _WIN32
         DWORD mode, cc;
         HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
@@ -252,7 +252,7 @@ static int bc_getchar() {
     #endif
 }
 
-static void bc_putchar(bc_point point, wchar_t ch) {
+void bc_putchar(bc_point point, wchar_t ch) {
     #ifdef _WIN32
         COORD coord = {point.x, point.y};
         SetConsoleCursorPosition(hConsole, coord);
@@ -262,7 +262,7 @@ static void bc_putchar(bc_point point, wchar_t ch) {
     #endif
 }
 
-static void bc_printf(bc_point point, const wchar_t* str) {
+void bc_printf(bc_point point, const wchar_t* str) {
     #ifdef _WIN32
         COORD coord = {point.y, point.x};
         SetConsoleCursorPosition(hConsole, coord);
@@ -272,7 +272,7 @@ static void bc_printf(bc_point point, const wchar_t* str) {
     #endif
 }
 
-static void bc_startcolor(bc_colorpair colorpair) {
+void bc_startcolor(bc_colorpair colorpair) {
     #ifdef _WIN32
         SetConsoleTextAttribute(hConsole, colorpair.foreground + (colorpair.foreground * 16));
     #else
@@ -280,7 +280,7 @@ static void bc_startcolor(bc_colorpair colorpair) {
     #endif
 }
 
-static void bc_endcolor() {
+void bc_endcolor() {
     #ifdef _WIN32
         SetConsoleTextAttribute(hConsole, 7);
     #else
@@ -288,7 +288,7 @@ static void bc_endcolor() {
     #endif
 }
 
-static void bc_drawbox(bc_point start, bc_point end, wchar_t border) {
+void bc_drawbox(bc_point start, bc_point end, wchar_t border) {
     for(int i = 0; i < end.x; i++) {
         bc_putchar((bc_point) {start.x + i, start.y}, border);
         bc_putchar((bc_point) {start.x + i, start.y + end.y - 1}, border);
@@ -300,7 +300,7 @@ static void bc_drawbox(bc_point start, bc_point end, wchar_t border) {
     }
 }
 
-static void bc_drawline(bc_point start, bc_point end, wchar_t character) {
+void bc_drawline(bc_point start, bc_point end, wchar_t character) {
     int dx = end.x - start.x;
     int dy = end.y - start.y;
     int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
@@ -316,7 +316,7 @@ static void bc_drawline(bc_point start, bc_point end, wchar_t character) {
     }
 }
 
-static void bc_createbutton(bc_button button) {
+void bc_createbutton(bc_button button) {
     bc_startcolor(button.colors);
 
     // Calculate the total width of the button
@@ -338,7 +338,7 @@ static void bc_createbutton(bc_button button) {
     bc_endcolor();
 }
 
-static int bc_ispressed(bc_button button, wchar_t key) {
+int bc_ispressed(bc_button button, wchar_t key) {
     int ch = bc_getchar();
 
     if (ch == key) {
