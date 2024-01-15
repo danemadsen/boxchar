@@ -271,10 +271,10 @@ int bc_kbhit() {
     #ifdef _WIN32
         return kbhit();
     #else
-        termios term;
+        struct termios term;
         tcgetattr(0, &term);
 
-        termios term2 = term;
+        struct termios term2 = term;
         term2.c_lflag &= ~ICANON;
         tcsetattr(0, TCSANOW, &term2);
 
