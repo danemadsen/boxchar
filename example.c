@@ -31,8 +31,11 @@ int main() {
         bc_putchar((bc_point) {x, y}, L'☻');
         bc_endcolor();
 
-        int ch = bc_getchar();
-        bc_clear();
+        int ch = 0;
+        if (bc_kbhit()) {
+            ch = bc_getchar();
+            bc_clear();
+        }
 
         if (ch == 'w' && y > 0) {
             y--; y_ratio = (float)y / height;
