@@ -97,6 +97,10 @@ static void bc_init() {
 
         GetConsoleScreenBufferInfo(hConsole, &csbiInfo);
         SetConsoleMode(hConsole, ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+        // Hide cursor
+        CONSOLE_CURSOR_INFO cursor_info = {1, 0};
+        SetConsoleCursorInfo(hConsole, &cursor_info);
     #else
         struct termios new_tio;
 
