@@ -43,6 +43,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <conio.h>
 #else
 #include <termios.h>
 #include <fcntl.h>
@@ -263,6 +264,26 @@ void bc_putchar(bc_point point, wchar_t ch) {
         wprintf(L"%lc", ch);
     #else
         printf("\033[%d;%dH%lc", point.y, point.x, ch);
+    #endif
+}
+
+int bc_kbhit() {
+    #ifdef _WIN32
+        return kbhit();
+    #else
+        termios term;
+        tcgetattr(0, &term);
+
+        termios term2 = term;
+        term2.c_lflag &= ~ICANON;
+        tcsetattr(0, TCSANOW, &term2);
+
+        int byteswaiting;
+        ioctl(0, FIONREAD, &byteswaiting);
+
+        tcsetattr(0, TCSANOW, &term);
+
+        return byteswaiting > 0;
     #endif
 }
 
