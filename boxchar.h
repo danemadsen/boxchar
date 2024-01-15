@@ -222,19 +222,7 @@ void bc_clear() {
 
 int bc_getchar() {
     #ifdef _WIN32
-        DWORD mode, cc;
-        HANDLE h = GetStdHandle(STD_INPUT_HANDLE);
-
-        if (h == NULL) {
-            return EOF; /* console not found */
-        }
-
-        GetConsoleMode(h, &mode);
-        SetConsoleMode(h, mode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
-        TCHAR c = 0;
-        ReadConsole(h, &c, 1, &cc, NULL);
-        SetConsoleMode(h, mode);
-        return c;
+        return getch();
     #else
         struct termios oldt, newt;
         int ch;
